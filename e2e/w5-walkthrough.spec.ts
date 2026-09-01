@@ -21,10 +21,13 @@ test.describe("W5 walkthrough harden", () => {
     const borrowers = page
       .locator("h2", { hasText: "My Borrowers" })
       .locator("..");
-    await expect(borrowers.getByText("Avery Agent · borrower")).toBeVisible();
     await expect(
-      borrowers.getByText("possible duplicate").first(),
+      borrowers.getByText("Avery Agent · borrower · possible duplicate"),
     ).toBeVisible();
+    await expect(borrowers.getByText("Ada Ash · borrower")).toBeVisible();
+    await expect(
+      borrowers.getByText("Ada Ash · borrower · possible duplicate"),
+    ).toHaveCount(0);
     const agents = page
       .locator("h2", { hasText: "My Paired Agents" })
       .locator("..");

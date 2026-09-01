@@ -193,12 +193,18 @@ const CONTACT_VIEW_COLUMNS = `
       and other.tenant_id = c.tenant_id
       and lower(other.first_name) = lower(c.first_name)
       and lower(other.last_name) = lower(c.last_name)
-      and not exists (
-        select 1 from contact_type_assignments mine
-        join contact_type_assignments theirs
-          on theirs.contact_id = other.id
-         and theirs.type_id = mine.type_id
-        where mine.contact_id = c.id
+      and (
+        select t.type_id
+        from contact_type_assignments t
+        where t.contact_id = other.id
+        order by t.is_primary desc, t.type_id
+        limit 1
+      ) is distinct from (
+        select t.type_id
+        from contact_type_assignments t
+        where t.contact_id = c.id
+        order by t.is_primary desc, t.type_id
+        limit 1
       )
   ) as possible_duplicate
 `;
@@ -323,6 +329,8 @@ export async function handler(event) {
 
     if (method === "GET" && rawPath === "/contacts") {
       const q = qs.q || null;
+      const firstName = qs.first_name || null;
+      const lastName = qs.last_name || null;
       const rows = await withTenant(principal, (client) =>
         client.query(
           `select c.id, c.first_name, c.last_name, c.owner_id, c.tenant_id,
@@ -337,16 +345,21 @@ export async function handler(event) {
            from contacts c
            where c.merged_into_id is null
              and (
-               $1::text is null
-               or c.first_name ilike '%' || $1 || '%'
-               or c.last_name ilike '%' || $1 || '%'
-               or exists (
-                 select 1 from contact_identifiers i
-                 where i.contact_id = c.id and i.value ilike '%' || $1 || '%'
+               $2::text is not null
+                 and lower(c.first_name) = lower($2)
+                 and ($3::text is null or lower(c.last_name) = lower($3))
+               or $2::text is null and (
+                 $1::text is null
+                 or c.first_name ilike '%' || $1 || '%'
+                 or c.last_name ilike '%' || $1 || '%'
+                 or exists (
+                   select 1 from contact_identifiers i
+                   where i.contact_id = c.id and i.value ilike '%' || $1 || '%'
+                 )
                )
              )
            order by c.last_name, c.first_name`,
-          [q],
+          [q, firstName, lastName],
         ),
       );
       return json(200, { data: rows.rows, total: rows.rowCount });
