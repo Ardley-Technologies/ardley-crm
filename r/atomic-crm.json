@@ -235,7 +235,7 @@
     },
     {
       "path": "src/components/atomic-crm/providers/types.ts",
-      "content": "import type { DataProvider } from \"ra-core\";\n\nimport type { ConfigurationContextValue } from \"../root/ConfigurationContext\";\n\nexport type CrmDataProvider = DataProvider & {\n  getConfiguration: () => Promise<ConfigurationContextValue>;\n  isInitialized: () => Promise<boolean>;\n};\n",
+      "content": "import type { DataProvider } from \"ra-core\";\n\nimport type { ConfigurationContextValue } from \"../root/ConfigurationContext\";\n\nexport type CrmDataProvider = DataProvider & {\n  getConfiguration: () => Promise<ConfigurationContextValue>;\n  isInitialized: () => Promise<boolean>;\n  mergeContacts?: (loserId: string, winnerId: string) => Promise<unknown>;\n};\n",
       "type": "registry:component"
     },
     {
@@ -630,7 +630,7 @@
     },
     {
       "path": "src/components/atomic-crm/layout/MobileLayout.tsx",
-      "content": "import { Error } from \"@/components/admin/error\";\nimport { Notification } from \"@/components/admin/notification\";\nimport { Skeleton } from \"@/components/ui/skeleton\";\nimport { Suspense, type ReactNode } from \"react\";\nimport { ErrorBoundary } from \"react-error-boundary\";\n\nimport { useConfigurationLoader } from \"../root/useConfigurationLoader\";\nimport { MobileNavigation } from \"./MobileNavigation\";\n\nexport const MobileLayout = ({ children }: { children: ReactNode }) => {\n  useConfigurationLoader();\n  return (\n    <>\n      <ErrorBoundary FallbackComponent={Error}>\n        <Suspense fallback={<Skeleton className=\"h-12 w-12 rounded-full\" />}>\n          {children}\n        </Suspense>\n      </ErrorBoundary>\n      <MobileNavigation />\n      <Notification mobileOffset={{ bottom: \"72px\" }} />\n    </>\n  );\n};\n",
+      "content": "import { Error } from \"@/components/admin/error\";\nimport { Notification } from \"@/components/admin/notification\";\nimport { Skeleton } from \"@/components/ui/skeleton\";\nimport { Suspense, type ReactNode } from \"react\";\nimport { ErrorBoundary } from \"react-error-boundary\";\n\nimport { useConfigurationLoader } from \"../root/useConfigurationLoader\";\nimport { MobileNavigation } from \"./MobileNavigation\";\nimport { PocBanner } from \"./PocBanner\";\n\nexport const MobileLayout = ({ children }: { children: ReactNode }) => {\n  useConfigurationLoader();\n  return (\n    <>\n      <PocBanner />\n      <ErrorBoundary FallbackComponent={Error}>\n        <Suspense fallback={<Skeleton className=\"h-12 w-12 rounded-full\" />}>\n          {children}\n        </Suspense>\n      </ErrorBoundary>\n      <MobileNavigation />\n      <Notification mobileOffset={{ bottom: \"72px\" }} />\n    </>\n  );\n};\n",
       "type": "registry:component"
     },
     {
@@ -645,7 +645,7 @@
     },
     {
       "path": "src/components/atomic-crm/layout/Layout.tsx",
-      "content": "import { Suspense, type ReactNode } from \"react\";\nimport { ErrorBoundary } from \"react-error-boundary\";\nimport { Notification } from \"@/components/admin/notification\";\nimport { Error } from \"@/components/admin/error\";\nimport { Skeleton } from \"@/components/ui/skeleton\";\n\nimport { useConfigurationLoader } from \"../root/useConfigurationLoader\";\nimport Header from \"./Header\";\n\nexport const Layout = ({ children }: { children: ReactNode }) => {\n  useConfigurationLoader();\n  return (\n    <>\n      <Header />\n      <main className=\"max-w-screen-xl mx-auto pt-4 px-4\" id=\"main-content\">\n        <ErrorBoundary FallbackComponent={Error}>\n          <Suspense fallback={<Skeleton className=\"h-12 w-12 rounded-full\" />}>\n            {children}\n          </Suspense>\n        </ErrorBoundary>\n      </main>\n      <Notification />\n    </>\n  );\n};\n",
+      "content": "import { Suspense, type ReactNode } from \"react\";\nimport { ErrorBoundary } from \"react-error-boundary\";\nimport { Notification } from \"@/components/admin/notification\";\nimport { Error } from \"@/components/admin/error\";\nimport { Skeleton } from \"@/components/ui/skeleton\";\n\nimport { useConfigurationLoader } from \"../root/useConfigurationLoader\";\nimport Header from \"./Header\";\nimport { PocBanner } from \"./PocBanner\";\n\nexport const Layout = ({ children }: { children: ReactNode }) => {\n  useConfigurationLoader();\n  return (\n    <>\n      <Header />\n      <PocBanner />\n      <main className=\"max-w-screen-xl mx-auto pt-4 px-4\" id=\"main-content\">\n        <ErrorBoundary FallbackComponent={Error}>\n          <Suspense fallback={<Skeleton className=\"h-12 w-12 rounded-full\" />}>\n            {children}\n          </Suspense>\n        </ErrorBoundary>\n      </main>\n      <Notification />\n    </>\n  );\n};\n",
       "type": "registry:component"
     },
     {
