@@ -38,15 +38,16 @@ export const getDataProvider = (): DataProvider & {
 } =>
   ({
     getList: async (resource, params) => {
-      const q = params?.filter?.q;
-      const first = params?.filter?.first_name;
-      const last = params?.filter?.last_name;
-      const nameQuery = [first, last].filter(Boolean).join(" ");
-      const search = q ?? (nameQuery || undefined);
+      const filter = params?.filter ?? {};
+      const query = new URLSearchParams();
+      if (filter.q) query.set("q", String(filter.q));
+      if (filter.first_name) query.set("first_name", String(filter.first_name));
+      if (filter.last_name) query.set("last_name", String(filter.last_name));
+      const qs = query.toString();
       const path =
         resource === "contacts"
-          ? search
-            ? `/contacts?q=${encodeURIComponent(String(search))}`
+          ? qs
+            ? `/contacts?${qs}`
             : "/contacts"
           : resource === "companies"
             ? "/companies"
