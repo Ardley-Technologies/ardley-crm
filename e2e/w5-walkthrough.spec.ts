@@ -51,6 +51,38 @@ test.describe("W5 walkthrough harden", () => {
     ).toBeVisible();
   });
 
+  test("Phil recruiting deal and coaching stub are on the LO", async ({
+    page,
+  }) => {
+    await page.goto("/#/");
+    await expect(
+      page.getByRole("heading", { name: "Recruiting" }),
+    ).toBeVisible();
+    const recruiting = page
+      .locator("h2", { hasText: "Recruiting" })
+      .locator("..");
+    await recruiting.getByRole("link", { name: /hire/i }).first().click();
+    await expect(page.getByText("recruit")).toBeVisible();
+    await page.goto("/#/contacts");
+    await page.getByRole("link", { name: "Phil Officer" }).first().click();
+    await expect(page.getByText("OPTAH / Coaching")).toBeVisible();
+    await expect(page.getByText("Coming.")).toBeVisible();
+  });
+
+  test("Woodley never sees Ellis Envoy", async ({ page }) => {
+    await page.goto("/#/contacts");
+    await expect(
+      page.getByRole("link", { name: "Willow Woodley" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ellis Envoy" })).toHaveCount(
+      0,
+    );
+    await page.getByLabel("Search name or NMLS").fill("Ellis");
+    await expect(page.getByRole("link", { name: "Ellis Envoy" })).toHaveCount(
+      0,
+    );
+  });
+
   test("contact search filters as you type", async ({ page }) => {
     await page.goto("/#/contacts");
     await expect(
