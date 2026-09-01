@@ -1,15 +1,18 @@
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 import { createPublicKey, createVerify } from "node:crypto";
 import { Client } from "pg";
 
 const secrets = new SecretsManagerClient({});
 const TENANTS = {
-  "100004": {
+  100004: {
     customerId: "100004",
     slug: "woodley",
     tenantUuid: "4b51bd26-ea4f-5777-b9d9-780dbb91853e",
   },
-  "100081": {
+  100081: {
     customerId: "100081",
     slug: "envoy",
     tenantUuid: "28dd4130-fe59-5ada-a3ce-78c82259e9dd",
@@ -24,7 +27,8 @@ function json(status, body, extraHeaders = {}) {
     statusCode: status,
     headers: {
       "content-type": "application/json",
-      "access-control-allow-origin": process.env.SPA_ORIGIN || "https://crm.dev.ardley.us",
+      "access-control-allow-origin":
+        process.env.SPA_ORIGIN || "https://crm.dev.ardley.us",
       "access-control-allow-headers": "content-type, authorization",
       "access-control-allow-methods": "GET,PATCH,POST,OPTIONS",
       ...extraHeaders,
@@ -74,7 +78,11 @@ async function verifyJwt(token) {
   if (payload.token_use !== "id" && payload.token_use !== "access") {
     throw new Error("bad_token_use");
   }
-  if (payload.aud && payload.aud !== clientId && payload.client_id !== clientId) {
+  if (
+    payload.aud &&
+    payload.aud !== clientId &&
+    payload.client_id !== clientId
+  ) {
     throw new Error("bad_audience");
   }
   if ((payload.exp || 0) * 1000 < Date.now() - 30_000) {
@@ -169,27 +177,52 @@ async function upsertCrmUser(principal, claims) {
   });
 }
 
+const CONTACT_VIEW_COLUMNS = `
+  c.id, c.first_name, c.last_name,
+  (
+    select t.type_id
+    from contact_type_assignments t
+    where t.contact_id = c.id
+    order by t.is_primary desc, t.type_id
+    limit 1
+  ) as primary_type,
+  exists (
+    select 1 from contacts other
+    where other.id <> c.id
+      and other.merged_into_id is null
+      and other.tenant_id = c.tenant_id
+      and lower(other.first_name) = lower(c.first_name)
+      and lower(other.last_name) = lower(c.last_name)
+  ) as possible_duplicate
+`;
+
+function contactViewResults(rows) {
+  return rows.map((row) => ({
+    id: row.id,
+    label: `${row.first_name} ${row.last_name}`,
+    href: `/contacts/${row.id}/show`,
+    primary_type: row.primary_type ?? null,
+    possible_duplicate: Boolean(row.possible_duplicate),
+  }));
+}
+
 async function resolveSavedView(client, view) {
   const query = view.query || {};
   const kind = query.kind;
   if (kind === "contacts_by_type") {
     const rows = await client.query(
-      `select c.id, c.first_name, c.last_name
+      `select ${CONTACT_VIEW_COLUMNS}
        from contacts c
        join contact_type_assignments t on t.contact_id = c.id
        where t.type_id = $1 and c.merged_into_id is null
        order by c.last_name, c.first_name`,
       [query.type_id],
     );
-    return rows.rows.map((row) => ({
-      id: row.id,
-      label: `${row.first_name} ${row.last_name}`,
-      href: `/contacts/${row.id}/show`,
-    }));
+    return contactViewResults(rows.rows);
   }
   if (kind === "list") {
     const rows = await client.query(
-      `select c.id, c.first_name, c.last_name
+      `select ${CONTACT_VIEW_COLUMNS}
        from list_members m
        join contacts c on c.id = m.object_id
        where m.list_id = $1 and m.object_type = 'contact'
@@ -197,11 +230,7 @@ async function resolveSavedView(client, view) {
        order by c.last_name, c.first_name`,
       [query.list_id],
     );
-    return rows.rows.map((row) => ({
-      id: row.id,
-      label: `${row.first_name} ${row.last_name}`,
-      href: `/contacts/${row.id}/show`,
-    }));
+    return contactViewResults(rows.rows);
   }
   if (kind === "deals_by_pipeline") {
     const rows = await client.query(
@@ -446,7 +475,7 @@ export async function handler(event) {
           [id],
         );
         if (!contact.rowCount) return null;
-        const [types, identifiers, affiliations, links, parties] =
+        const [types, identifiers, affiliations, links, parties, dealGraph] =
           await Promise.all([
             client.query(
               `select type_id, is_primary from contact_type_assignments
@@ -489,6 +518,28 @@ export async function handler(event) {
                where dp.contact_id = $1`,
               [id],
             ),
+            client.query(
+              `select dp.deal_id, d.name as deal_name, c.id as contact_id,
+                      c.first_name, c.last_name, dp.role,
+                      aff.company_id, aff.company_name
+               from deal_parties me
+               join deal_parties dp
+                 on dp.deal_id = me.deal_id
+                and dp.contact_id <> me.contact_id
+               join deals d on d.id = dp.deal_id
+               join contacts c on c.id = dp.contact_id
+               left join lateral (
+                 select a.company_id, co.name as company_name
+                 from contact_affiliations a
+                 join companies co on co.id = a.company_id
+                 where a.contact_id = c.id
+                 order by a.is_primary desc
+                 limit 1
+               ) aff on true
+               where me.contact_id = $1
+               order by d.name, dp.role, c.last_name`,
+              [id],
+            ),
           ]);
         return {
           ...contact.rows[0],
@@ -497,6 +548,7 @@ export async function handler(event) {
           affiliations: affiliations.rows,
           links: links.rows,
           deals: parties.rows,
+          deal_graph: dealGraph.rows,
         };
       });
       if (!payload) return json(404, { error: "not_found" });
