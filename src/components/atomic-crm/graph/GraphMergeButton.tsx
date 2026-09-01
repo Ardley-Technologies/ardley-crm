@@ -35,10 +35,13 @@ export function GraphMergeButton({
   const redirect = useRedirect();
   const dataProvider = useDataProvider<CrmDataProvider>();
   const { data } = useGetList<MergeCandidate>("contacts", {
-    pagination: { page: 1, perPage: 200 },
+    pagination: { page: 1, perPage: 20 },
     sort: { field: "last_name", order: "ASC" },
+    filter: { first_name: firstName, last_name: lastName },
   });
   const candidates = (data ?? []).filter((row) => row.id !== loserId);
+
+  if (candidates.length === 0) return null;
 
   return (
     <div className="flex flex-wrap items-end gap-2">
@@ -46,7 +49,7 @@ export function GraphMergeButton({
         Merge into
         <Select value={winnerId} onValueChange={setWinnerId}>
           <SelectTrigger className="mt-1 w-80" aria-label="Merge into">
-            <SelectValue placeholder="Choose the contact to keep" />
+            <SelectValue placeholder="Choose the matching contact" />
           </SelectTrigger>
           <SelectContent>
             {candidates.map((row) => (

@@ -193,6 +193,13 @@ const CONTACT_VIEW_COLUMNS = `
       and other.tenant_id = c.tenant_id
       and lower(other.first_name) = lower(c.first_name)
       and lower(other.last_name) = lower(c.last_name)
+      and not exists (
+        select 1 from contact_type_assignments mine
+        join contact_type_assignments theirs
+          on theirs.contact_id = other.id
+         and theirs.type_id = mine.type_id
+        where mine.contact_id = c.id
+      )
   ) as possible_duplicate
 `;
 
