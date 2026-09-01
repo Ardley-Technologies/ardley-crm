@@ -12,7 +12,7 @@ const DATABASE_URL =
   "postgres://crm_app:crm_app@127.0.0.1:5433/ardley_crm";
 
 const TENANTS = {
-  "100004": {
+  100004: {
     customerId: "100004",
     slug: "woodley",
     tenantUuid: "4b51bd26-ea4f-5777-b9d9-780dbb91853e",
@@ -20,7 +20,7 @@ const TENANTS = {
     email: "woodley.lo@example.test",
     fullName: "Woodley LO",
   },
-  "100081": {
+  100081: {
     customerId: "100081",
     slug: "envoy",
     tenantUuid: "28dd4130-fe59-5ada-a3ce-78c82259e9dd",
@@ -556,10 +556,10 @@ const server = http.createServer(async (req, res) => {
         );
         if (!current.rowCount) return null;
         const fromStage = current.rows[0].stage_id;
-        await client.query(`update deals set stage_id = $2, updated_at = now() where id = $1`, [
-          id,
-          stageId,
-        ]);
+        await client.query(
+          `update deals set stage_id = $2, updated_at = now() where id = $1`,
+          [id, stageId],
+        );
         await client.query(
           `insert into deal_stage_events
              (tenant_id, deal_id, from_stage_id, to_stage_id, actor_user_id)

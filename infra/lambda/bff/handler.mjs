@@ -1,15 +1,18 @@
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 import { createPublicKey, createVerify } from "node:crypto";
 import { Client } from "pg";
 
 const secrets = new SecretsManagerClient({});
 const TENANTS = {
-  "100004": {
+  100004: {
     customerId: "100004",
     slug: "woodley",
     tenantUuid: "4b51bd26-ea4f-5777-b9d9-780dbb91853e",
   },
-  "100081": {
+  100081: {
     customerId: "100081",
     slug: "envoy",
     tenantUuid: "28dd4130-fe59-5ada-a3ce-78c82259e9dd",
@@ -24,7 +27,8 @@ function json(status, body, extraHeaders = {}) {
     statusCode: status,
     headers: {
       "content-type": "application/json",
-      "access-control-allow-origin": process.env.SPA_ORIGIN || "https://crm.dev.ardley.us",
+      "access-control-allow-origin":
+        process.env.SPA_ORIGIN || "https://crm.dev.ardley.us",
       "access-control-allow-headers": "content-type, authorization",
       "access-control-allow-methods": "GET,PATCH,POST,OPTIONS",
       ...extraHeaders,
@@ -74,7 +78,11 @@ async function verifyJwt(token) {
   if (payload.token_use !== "id" && payload.token_use !== "access") {
     throw new Error("bad_token_use");
   }
-  if (payload.aud && payload.aud !== clientId && payload.client_id !== clientId) {
+  if (
+    payload.aud &&
+    payload.aud !== clientId &&
+    payload.client_id !== clientId
+  ) {
     throw new Error("bad_audience");
   }
   if ((payload.exp || 0) * 1000 < Date.now() - 30_000) {
