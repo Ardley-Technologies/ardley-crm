@@ -59,7 +59,8 @@ export const getAuthProvider = (): AuthProvider => {
       }
     },
     checkAuth: async () => {
-      if (readSession()) return;
+      const session = readSession();
+      if (session) return;
       const code = consumeAuthCode();
       if (code) {
         const session = await exchangeCode(code);

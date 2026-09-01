@@ -22,7 +22,9 @@ test.describe("W5 walkthrough harden", () => {
       .locator("h2", { hasText: "My Borrowers" })
       .locator("..");
     await expect(borrowers.getByText("Avery Agent · borrower")).toBeVisible();
-    await expect(borrowers.getByText("possible duplicate")).toBeVisible();
+    await expect(
+      borrowers.getByText("possible duplicate").first(),
+    ).toBeVisible();
     const agents = page
       .locator("h2", { hasText: "My Paired Agents" })
       .locator("..");

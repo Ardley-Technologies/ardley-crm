@@ -39,10 +39,14 @@ export const getDataProvider = (): DataProvider & {
   ({
     getList: async (resource, params) => {
       const q = params?.filter?.q;
+      const first = params?.filter?.first_name;
+      const last = params?.filter?.last_name;
+      const nameQuery = [first, last].filter(Boolean).join(" ");
+      const search = q ?? (nameQuery || undefined);
       const path =
         resource === "contacts"
-          ? q
-            ? `/contacts?q=${encodeURIComponent(String(q))}`
+          ? search
+            ? `/contacts?q=${encodeURIComponent(String(search))}`
             : "/contacts"
           : resource === "companies"
             ? "/companies"

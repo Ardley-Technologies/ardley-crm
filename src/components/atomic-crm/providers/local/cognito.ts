@@ -33,7 +33,12 @@ export function readSession(): CognitoSession | null {
   const raw = window.localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as CognitoSession;
+    const session = JSON.parse(raw) as CognitoSession;
+    if (session.expiresAt && session.expiresAt <= Date.now()) {
+      clearSession();
+      return null;
+    }
+    return session;
   } catch {
     return null;
   }
