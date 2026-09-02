@@ -301,6 +301,22 @@ def main() -> None:
         party_rows.append(
             f"    ({sql_str(str(WOODLEY))}, {sql_str(did)}, {sql_str(recruit)}, 'recruit', true)"
         )
+
+    # Phil is already the loan officer on three loans. Recruiting him puts the
+    # same contact on a second pipeline, which is what click-script step 5 asks
+    # for: one human, two pipelines, one id (invariant 1). Every other recruiting
+    # deal points at a throwaway recruit contact, so none of them showed that.
+    phil_hire = uid("deal-recruit-phil")
+    deal_rows.append(
+        f"    ({sql_str(phil_hire)}, {sql_str(str(WOODLEY))}, {sql_str(OWNER)}, "
+        f"{sql_str(RECRUITING)}, {sql_str(RECRUIT_STAGE)}, 'Phil Officer hire', "
+        f"null, 'walkthrough')"
+    )
+    party_rows.append(
+        f"    ({sql_str(str(WOODLEY))}, {sql_str(phil_hire)}, {sql_str(PHIL)}, "
+        f"'recruit', true)"
+    )
+
     for i in range(5):
         did = uid(f"deal-b2b-{i}")
         deal_rows.append(

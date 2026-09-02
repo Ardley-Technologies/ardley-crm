@@ -664,6 +664,7 @@ insert into deals (id, tenant_id, owner_id, pipeline_id, stage_id, name, amount_
     ('19f1a4ee-8534-56cd-901f-252ff48a86fc', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'c1000001-0001-4000-8000-000000000007', 'c1000001-0001-4000-8000-000000000071', 'Recruit 5', null, 'roster'),
     ('e4ff257f-c6e7-5303-93e7-c7346775159b', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'c1000001-0001-4000-8000-000000000007', 'c1000001-0001-4000-8000-000000000071', 'Recruit 6', null, 'roster'),
     ('08fc1022-6eb4-5b41-b6af-0311f786b67d', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'c1000001-0001-4000-8000-000000000007', 'c1000001-0001-4000-8000-000000000071', 'Recruit 7', null, 'roster'),
+    ('66470618-d0c6-5d25-b7f2-f81e06ee9cbc', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'c1000001-0001-4000-8000-000000000007', 'c1000001-0001-4000-8000-000000000071', 'Phil Officer hire', null, 'walkthrough'),
     ('89131b8a-df0e-51fe-a418-99768dce3226', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 1', 8000000, 'roster'),
     ('26de9123-90ec-5c9f-af64-57891f8ad3e4', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 2', 8500000, 'roster'),
     ('9a07fa84-9a78-5672-8627-d955f020ef7c', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 3', 9000000, 'roster'),
@@ -847,7 +848,8 @@ insert into deal_parties (tenant_id, deal_id, contact_id, role, is_primary) valu
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'a7ce4b46-e00f-5d93-b5c9-f99d0c2bc446', '0916fa81-1e1b-5b0f-8cbb-f3d02e041da3', 'recruit', true),
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '19f1a4ee-8534-56cd-901f-252ff48a86fc', '127b492a-53f2-5dbe-b0a1-42cc2561b53d', 'recruit', true),
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'e4ff257f-c6e7-5303-93e7-c7346775159b', '7577a3af-9fb1-5e2c-a4ef-a3b460f840c5', 'recruit', true),
-    ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '08fc1022-6eb4-5b41-b6af-0311f786b67d', '349a01ab-688e-5e88-9eab-71bb88fea276', 'recruit', true)
+    ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '08fc1022-6eb4-5b41-b6af-0311f786b67d', '349a01ab-688e-5e88-9eab-71bb88fea276', 'recruit', true),
+    ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '66470618-d0c6-5d25-b7f2-f81e06ee9cbc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaad', 'recruit', true)
  on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values

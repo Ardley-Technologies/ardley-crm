@@ -110,6 +110,15 @@ test.describe("W5 walkthrough harden", () => {
     await page.getByRole("link", { name: "Phil Officer" }).first().click();
     await expect(page.getByText("OPTAH / Coaching")).toBeVisible();
     await expect(page.getByText("Coming.")).toBeVisible();
+
+    // The click script's point: one human on two pipelines under one id. Phil is
+    // the loan officer on the loans and the recruit on his own hire, so his Deals
+    // section has to show both roles.
+    const deals = page.locator("h2", { hasText: "Deals" }).locator("..");
+    await expect(deals.getByText("Phil Officer hire (recruit)")).toBeVisible();
+    await expect(
+      deals.getByText("Willow purchase (loan_officer)"),
+    ).toBeVisible();
   });
 
   test("Woodley never sees Ellis Envoy", async ({ page }) => {
