@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDataProvider, useGetList, useNotify, useRedirect } from "ra-core";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ export function GraphMergeButton({
   const [busy, setBusy] = useState(false);
   const notify = useNotify();
   const redirect = useRedirect();
+  const queryClient = useQueryClient();
   const dataProvider = useDataProvider<CrmDataProvider>();
   const { data } = useGetList<MergeCandidate>("contacts", {
     pagination: { page: 1, perPage: 20 },
@@ -71,6 +73,13 @@ export function GraphMergeButton({
               throw new Error("merge is not wired");
             }
             await dataProvider.mergeContacts(loserId, winnerId);
+            // The redirect below stays inside this same contact-show tree, so the
+            // candidate list above never remounts and never refetches -- it went
+            // on offering the row that had just been merged away until a reload.
+            // Every other view remounts and staleTime is 0, so they refetch on
+            // their own; only this query needs the nudge. ra-core keys queries as
+            // [resource, method, params], so the bare name matches all of them.
+            await queryClient.invalidateQueries({ queryKey: ["contacts"] });
             notify("Contacts merged", { type: "success" });
             redirect("show", "contacts", winnerId);
           } catch {
