@@ -15,7 +15,10 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
       <PocBanner />
       <ErrorBoundary FallbackComponent={Error}>
         <Suspense fallback={<Skeleton className="h-12 w-12 rounded-full" />}>
-          {children}
+          {/* Clear the fixed bottom nav. Without this it covers the last rows of
+              every page and swallows their clicks. 72px matches the offset the
+              notification below already uses. */}
+          <div className="pb-[72px]">{children}</div>
         </Suspense>
       </ErrorBoundary>
       <MobileNavigation />

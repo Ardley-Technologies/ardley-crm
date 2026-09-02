@@ -20,16 +20,6 @@ test.describe("W5 walkthrough harden", () => {
     test.skip(!reachable, "local BFF is not running");
   });
 
-  // Below 768px CRM.tsx swaps DesktopAdmin for MobileAdmin, which still
-  // registers the stock Atomic CRM contact/company screens and no deals
-  // resource at all -- so the loan triangle, merge picker, and NMLS search do
-  // not exist there. Only the dashboard is shared. Skipped rather than deleted
-  // so the gap stays visible; see docs/w5.md.
-  test.skip(
-    ({ viewport }) => (viewport?.width ?? 1280) < 768,
-    "graph walkthrough UI is desktop-only (MobileAdmin lacks the graph resources)",
-  );
-
   test("home labels the Avery duplicate and shows the POC banner", async ({
     page,
   }) => {

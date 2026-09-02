@@ -22,15 +22,6 @@ test.describe("W2 loan triangle", () => {
     test.skip(!reachable, "local BFF is not running");
   });
 
-  // Below 768px CRM.tsx swaps in MobileAdmin, which registers the stock Atomic
-  // CRM contact/company screens instead of the graph ones, so none of the graph
-  // UI asserted below exists there. Skipped rather than deleted so the gap stays
-  // visible; see docs/w5.md.
-  test.skip(
-    ({ viewport }) => (viewport?.width ?? 1280) < 768,
-    "graph UI is desktop-only (MobileAdmin lacks the graph resources)",
-  );
-
   test("opens Willow and walks spouse, team, and loan parties", async ({
     page,
   }) => {

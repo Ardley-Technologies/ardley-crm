@@ -54,9 +54,6 @@ import { i18nProvider as defaulti18nProvider } from "../providers/commons/i18nPr
 import { StartPage } from "../login/StartPage.tsx";
 import { useIsMobile } from "@/hooks/use-mobile.ts";
 import { MobileTasksList } from "../tasks/MobileTasksList.tsx";
-import { ContactListMobile } from "../contacts/ContactList.tsx";
-import { ContactShow } from "../contacts/ContactShow.tsx";
-import { CompanyShow } from "../companies/CompanyShow.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
 
 const defaultStore = localStorageStore(undefined, "CRM");
@@ -325,16 +322,19 @@ const MobileAdmin = (
           />
           <Route path={ChangelogPage.path} element={<ChangelogPage />} />
         </CustomRoutes>
-        <Resource
-          name="contacts"
-          list={ContactListMobile}
-          show={ContactShow}
-          recordRepresentation={contacts.recordRepresentation}
-        >
+        {/* Same graph resources as desktop. These used to be the stock Atomic
+            screens, which left a phone with no loan triangle, no merge picker,
+            no NMLS search, and no deals resource at all. */}
+        <Resource name="deals" {...deals} />
+        <Resource name="contacts" {...contacts}>
           <Route path=":id/notes/:noteId" element={<NoteShowPage />} />
         </Resource>
-        <Resource name="companies" show={CompanyShow} />
+        <Resource name="companies" {...companies} />
+        <Resource name="contact_notes" />
+        <Resource name="deal_notes" />
         <Resource name="tasks" list={MobileTasksList} />
+        <Resource name="sales" {...sales} />
+        <Resource name="tags" />
       </Admin>
     </PersistQueryClientProvider>
   );
