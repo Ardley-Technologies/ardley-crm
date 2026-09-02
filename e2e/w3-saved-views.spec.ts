@@ -16,15 +16,6 @@ test.describe("W3 saved views home", () => {
     test.skip(!reachable, "local BFF is not running");
   });
 
-  // Below 768px CRM.tsx swaps in MobileAdmin, which registers the stock Atomic
-  // CRM contact/company screens instead of the graph ones, so none of the graph
-  // UI asserted below exists there. Skipped rather than deleted so the gap stays
-  // visible; see docs/w5.md.
-  test.skip(
-    ({ viewport }) => (viewport?.width ?? 1280) < 768,
-    "graph UI is desktop-only (MobileAdmin lacks the graph resources)",
-  );
-
   test("home lists My Borrowers and My Paired Agents", async ({ page }) => {
     await page.goto("/#/");
     await expect(

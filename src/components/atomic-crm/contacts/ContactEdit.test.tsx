@@ -154,7 +154,6 @@ describe("ContactEdit", () => {
     it("shows empty email and phone inputs when the contact has none on mobile", async () => {
       const screen = await render(<ContactEditMobileBasic silent />);
 
-      await screen.getByRole("button", { name: /edit/i }).click();
       // The form should display one empty email placeholder input
       await expect
         .element(screen.getByPlaceholder("Email"))
@@ -176,7 +175,6 @@ describe("ContactEdit", () => {
           }}
         />,
       );
-      await screen.getByRole("button", { name: /edit/i }).click();
 
       // Wait for the form to load
       await expect
@@ -215,7 +213,6 @@ describe("ContactEdit", () => {
           silent
         />,
       );
-      await screen.getByRole("button", { name: /edit/i }).click();
 
       // Wait for the edit sheet form to render before interacting
       const emailInput = screen.getByPlaceholder("Email");
@@ -254,7 +251,6 @@ describe("ContactEdit", () => {
           dataProvider={{ update: updateMock }}
         />,
       );
-      await screen.getByRole("button", { name: /edit/i }).click();
 
       // Wait for existing values to appear
       const emailInput = screen.getByPlaceholder("Email");
