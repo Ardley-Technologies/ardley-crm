@@ -4,8 +4,16 @@ const bff = process.env.CRM_BFF_URL ?? "http://127.0.0.1:8787";
 
 test.describe("W3 saved views home", () => {
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${bff}/health`);
-    test.skip(!health.ok(), "local BFF is not running");
+    // A refused connection throws rather than returning a non-ok response, so
+    // without the catch this guard failed the suite instead of skipping it --
+    // which is why CI reported these specs as broken rather than as unrun.
+    let reachable = false;
+    try {
+      reachable = (await request.get(`${bff}/health`)).ok();
+    } catch {
+      reachable = false;
+    }
+    test.skip(!reachable, "local BFF is not running");
   });
 
   // Below 768px CRM.tsx swaps in MobileAdmin, which registers the stock Atomic

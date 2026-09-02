@@ -8,8 +8,16 @@ const WILLOW_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
 test.describe("W5 walkthrough harden", () => {
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${bff}/health`);
-    test.skip(!health.ok(), "local BFF is not running");
+    // A refused connection throws rather than returning a non-ok response, so
+    // without the catch this guard failed the suite instead of skipping it --
+    // which is why CI reported these specs as broken rather than as unrun.
+    let reachable = false;
+    try {
+      reachable = (await request.get(`${bff}/health`)).ok();
+    } catch {
+      reachable = false;
+    }
+    test.skip(!reachable, "local BFF is not running");
   });
 
   // Below 768px CRM.tsx swaps DesktopAdmin for MobileAdmin, which still
