@@ -52,27 +52,42 @@ const isBlocked = (r) => r.stdout.includes('"decision":"block"');
 describe("bash-guard hook", () => {
   describe("browser rules — any caller", () => {
     test("headed playwright test from main session → blocked", () => {
-      const r = runHook("", "npx playwright test");
+      const r = runHook("", "npx playwright test --headed");
       expect(r.status).toBe(0);
       expect(isBlocked(r)).toBe(true);
-      expect(r.stdout).toContain("--headless");
+      expect(r.stdout).toContain("--headed");
+    });
+
+    // `playwright test` is headless unless --headed, and it rejects a --headless
+    // flag outright, so demanding one here made the e2e suite unrunnable.
+    test("plain playwright test from main session → allowed", () => {
+      const r = runHook("", "npx playwright test e2e/w5-walkthrough.spec.ts");
+      expect(r.status).toBe(0);
+      expect(isBlocked(r)).toBe(false);
+    });
+
+    // screenshot is headless by default and also rejects --headless.
+    test("playwright screenshot from merger → allowed", () => {
+      const r = runHook(
+        "merger",
+        "npx playwright screenshot http://localhost:5173 out.png",
+      );
+      expect(r.status).toBe(0);
+      expect(isBlocked(r)).toBe(false);
     });
 
     test("headed playwright screenshot from merger → blocked", () => {
       const r = runHook(
         "merger",
-        "npx playwright screenshot http://localhost:5173 out.png",
+        "npx playwright screenshot --headed http://localhost:5173 out.png",
       );
       expect(isBlocked(r)).toBe(true);
     });
 
-    test("playwright with --headless from main session → allowed", () => {
-      const r = runHook(
-        "",
-        "npx playwright screenshot --headless http://localhost:5173 out.png",
-      );
-      expect(r.status).toBe(0);
-      expect(isBlocked(r)).toBe(false);
+    // codegen has no headless mode -- opening a window is the whole point.
+    test("playwright codegen from main session → blocked", () => {
+      const r = runHook("", "npx playwright codegen http://localhost:5173");
+      expect(isBlocked(r)).toBe(true);
     });
 
     test("vite --open → blocked", () => {

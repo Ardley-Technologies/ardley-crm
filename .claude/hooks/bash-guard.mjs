@@ -24,17 +24,19 @@ const cmd = input.tool_input?.command || "";
 if (!cmd) process.exit(0);
 
 // Browser rules — any caller: this sandbox has no display, a headed run hangs forever.
+// Playwright's CLI is headless by default and `test` / `screenshot` REJECT a
+// --headless flag outright, so demanding one made both unrunnable. `--headed` is
+// the only opt-in into a window; `codegen` exists to open one and has no headless
+// mode, so it is blocked outright.
 const opensHeadedPlaywright = (c) =>
-  /playwright/.test(c) &&
-  /(screenshot|test|codegen)/.test(c) &&
-  !c.includes("--headless");
+  /playwright/.test(c) && (/\s--headed\b/.test(c) || /\bcodegen\b/.test(c));
 const opensViteBrowser = (c) =>
   /(vite|npm run (dev|start|start-demo))/.test(c) && c.includes("--open");
 
 const BROWSER_RULES = [
   [
     opensHeadedPlaywright,
-    "Playwright must always use --headless. Add --headless to the command.",
+    "Playwright must stay headless. Drop --headed; codegen cannot run without a display.",
   ],
   [
     opensViteBrowser,

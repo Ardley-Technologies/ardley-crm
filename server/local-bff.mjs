@@ -72,24 +72,8 @@ const CONTACT_VIEW_COLUMNS = `
     order by t.is_primary desc, t.type_id
     limit 1
   ) as primary_type,
-  (
-    select count(*) = 1
-      and bool_or(
-        (
-          select t.type_id
-          from contact_type_assignments t
-          where t.contact_id = other.id
-          order by t.is_primary desc, t.type_id
-          limit 1
-        ) is distinct from (
-          select t.type_id
-          from contact_type_assignments t
-          where t.contact_id = c.id
-          order by t.is_primary desc, t.type_id
-          limit 1
-        )
-      )
-    from contacts other
+  exists (
+    select 1 from contacts other
     where other.id <> c.id
       and other.merged_into_id is null
       and other.tenant_id = c.tenant_id

@@ -39,7 +39,10 @@ function CompanyGraph() {
       <section>
         <h2 className="font-medium mb-2">Parent</h2>
         {record.parent ? (
-          <Link className="underline" to={`/companies/${record.parent.id}/show`}>
+          <Link
+            className="underline"
+            to={`/companies/${record.parent.id}/show`}
+          >
             {record.parent.name}
           </Link>
         ) : (
@@ -65,7 +68,10 @@ function CompanyGraph() {
         <ul>
           {(record.people ?? []).map((person) => (
             <li key={person.contact_id}>
-              <Link className="underline" to={`/contacts/${person.contact_id}/show`}>
+              <Link
+                className="underline"
+                to={`/contacts/${person.contact_id}/show`}
+              >
                 {person.first_name} {person.last_name}
               </Link>
               {person.role ? ` — ${person.role}` : ""}
