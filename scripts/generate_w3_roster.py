@@ -50,6 +50,16 @@ LAST = [
 SURNAME_STRIDE = 5
 
 
+# The ids are deterministic, so a plain "do nothing" leaves an already-seeded
+# database on whatever names it was first given -- which is how Aurora kept the
+# colliding roster after the generator was fixed. Converge the names instead.
+CONTACT_NAME_CONFLICT = (
+    "\n on conflict (id) do update set"
+    " first_name = excluded.first_name, last_name = excluded.last_name;\n"
+)
+DEAL_NAME_CONFLICT = "\n on conflict (id) do update set name = excluded.name;\n"
+
+
 def name_for(index: int) -> tuple[str, str]:
     """Return a distinct (first, last) for every index in the roster.
 
@@ -170,7 +180,7 @@ def main() -> None:
         lines.append(
             "insert into contacts (id, tenant_id, owner_id, first_name, last_name) values\n"
             + ",\n".join(contact_rows)
-            + "\n on conflict (id) do nothing;\n"
+            + CONTACT_NAME_CONFLICT
         )
         lines.append(
             "insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values\n"
@@ -275,8 +285,8 @@ def main() -> None:
         lines.append(
             "insert into contacts (id, tenant_id, owner_id, first_name, last_name) values\n"
             f"    ({sql_str(recruit)}, {sql_str(str(WOODLEY))}, {sql_str(OWNER)}, "
-            f"{sql_str(FIRST[i])}, 'Recruit')\n"
-            "on conflict (id) do nothing;\n"
+            f"{sql_str(FIRST[i])}, 'Recruit')"
+            + CONTACT_NAME_CONFLICT
         )
         lines.append(
             "insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values\n"
@@ -302,7 +312,7 @@ def main() -> None:
     lines.append(
         "insert into deals (id, tenant_id, owner_id, pipeline_id, stage_id, name, amount_cents, source) values\n"
         + ",\n".join(deal_rows)
-        + "\n on conflict (id) do nothing;\n"
+        + DEAL_NAME_CONFLICT
     )
     lines.append(
         "insert into deal_parties (tenant_id, deal_id, contact_id, role, is_primary) values\n"
@@ -334,7 +344,7 @@ def main() -> None:
     lines.append(
         "insert into contacts (id, tenant_id, owner_id, first_name, last_name) values\n"
         + ",\n".join(dup_c)
-        + "\n on conflict (id) do nothing;\n"
+        + CONTACT_NAME_CONFLICT
     )
     lines.append(
         "insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values\n"
@@ -359,7 +369,7 @@ def main() -> None:
     lines.append(
         "insert into contacts (id, tenant_id, owner_id, first_name, last_name) values\n"
         + ",\n".join(envoy_rows)
-        + "\n on conflict (id) do nothing;\n"
+        + CONTACT_NAME_CONFLICT
     )
 
     out = Path(__file__).resolve().parent.parent / "sql" / "seed_w3_roster.sql"

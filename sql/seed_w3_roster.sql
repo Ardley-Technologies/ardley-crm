@@ -62,7 +62,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('8300ef39-2aad-50cd-bd24-7357acffba49', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Jude', 'Fenn'),
     ('4eb948bf-9e62-511a-a0bc-02e2d72a8099', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ada', 'Lund'),
     ('36ef6c84-d28a-591e-92a7-d3364bc14599', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ben', 'Ash')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '5849a7a8-ab31-5a3e-8641-a9ea760bcdf9', 'real_estate_agent', true),
@@ -202,7 +202,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('f6c1b956-e10f-5e0d-8d1c-4b9094a6967c', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ned', 'Zane'),
     ('e6af3cf3-3751-5839-8325-d71cc93a5593', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ora', 'Gale'),
     ('5ba709b3-7b4b-5757-84e6-42b8027c04a4', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Pax', 'Mora')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '6ad29324-a809-5d0f-817d-eecfb411d217', 'loan_officer', true),
@@ -264,7 +264,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('d90e6a12-1a7b-5a6a-9372-b9ca867af407', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Vic', 'Diaz'),
     ('5ad5b54a-e98f-57d5-8c3a-6db9babc7b1d', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Wren', 'Kane'),
     ('30a2bdc2-813f-532c-ba71-59d242673e03', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Xan', 'Vance')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '8fc272d6-d406-5d81-ab9d-35e67c03f86b', 'employee', true),
@@ -359,7 +359,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('35de12ca-a864-5ed4-9701-fc078a14541f', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Tess', 'Gray'),
     ('4b7475b8-5b6f-5939-83cb-c0c185542788', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Uma', 'Lane'),
     ('d6fd6616-0a0a-5853-8200-0bd32378e0a7', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Vic', 'Quinn')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'f6f65dac-0653-5761-85e5-9ee0e26174cb', 'borrower', true),
@@ -465,7 +465,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('d030422d-6c2a-5f0a-a589-dc69f4c6ed47', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ned', 'Ives'),
     ('1e81ddfc-0540-54b4-bc56-cbc730b1ff34', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ora', 'Nash'),
     ('bba3928d-0e16-5999-982e-4c5c7bfb2869', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Pax', 'Shaw')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'a0628cb8-ff2a-5eda-85a4-d5bf11afce0b', 'borrower', true),
@@ -546,7 +546,7 @@ insert into list_members (tenant_id, list_id, object_type, object_id) values
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('371bb531-7fcc-5f64-972d-41ed6266c9d2', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ada', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '371bb531-7fcc-5f64-972d-41ed6266c9d2', 'recruit', true)
@@ -554,7 +554,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('4652ef30-cff8-5821-afb3-58adf243b39c', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Ben', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '4652ef30-cff8-5821-afb3-58adf243b39c', 'recruit', true)
@@ -562,7 +562,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('54949347-6877-56b4-aa1a-0523ff539bd7', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Cora', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '54949347-6877-56b4-aa1a-0523ff539bd7', 'recruit', true)
@@ -570,7 +570,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('0916fa81-1e1b-5b0f-8cbb-f3d02e041da3', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Drew', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '0916fa81-1e1b-5b0f-8cbb-f3d02e041da3', 'recruit', true)
@@ -578,7 +578,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('127b492a-53f2-5dbe-b0a1-42cc2561b53d', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Eve', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '127b492a-53f2-5dbe-b0a1-42cc2561b53d', 'recruit', true)
@@ -586,7 +586,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('7577a3af-9fb1-5e2c-a4ef-a3b460f840c5', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Finn', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '7577a3af-9fb1-5e2c-a4ef-a3b460f840c5', 'recruit', true)
@@ -594,7 +594,7 @@ on conflict do nothing;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('349a01ab-688e-5e88-9eab-71bb88fea276', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Gia', 'Recruit')
-on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '349a01ab-688e-5e88-9eab-71bb88fea276', 'recruit', true)
@@ -669,7 +669,7 @@ insert into deals (id, tenant_id, owner_id, pipeline_id, stage_id, name, amount_
     ('9a07fa84-9a78-5672-8627-d955f020ef7c', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 3', 9000000, 'roster'),
     ('5f42f4f1-78b4-5ae4-86aa-b39b09171be4', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 4', 9500000, 'roster'),
     ('f9f477fc-35e1-5a30-a1b5-f2334ad26170', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '9045749d-aa04-55b9-ba94-3db26a617de4', 'Team opportunity 5', 10000000, 'roster')
- on conflict (id) do nothing;
+ on conflict (id) do update set name = excluded.name;
 
 insert into deal_parties (tenant_id, deal_id, contact_id, role, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '1fe0e29b-8c44-554c-9842-5c7024a0995d', 'f6f65dac-0653-5761-85e5-9ee0e26174cb', 'borrower', true),
@@ -854,7 +854,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('97bdba64-9dbd-5ec8-bc19-a93ac005608b', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Willow', 'Woodley'),
     ('ff32f996-5294-53db-ab38-ed99b8abc70d', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Avery', 'Agent'),
     ('dfcc71a4-146e-5011-8ac2-287fde2277c3', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Blair', 'Borrower')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '97bdba64-9dbd-5ec8-bc19-a93ac005608b', 'borrower', true),
@@ -872,5 +872,5 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('0425c4d1-5ee2-5879-bf22-b085af200cf6', '28dd4130-fe59-5ada-a3ce-78c82259e9dd', '22222222-2222-2222-2222-222222222222', 'Gia', 'Envoy'),
     ('aa8872cd-6bc3-5436-ad8f-7e538a4bca24', '28dd4130-fe59-5ada-a3ce-78c82259e9dd', '22222222-2222-2222-2222-222222222222', 'Hank', 'Envoy'),
     ('eecfadaf-ee01-5274-b5c6-3c2297c47856', '28dd4130-fe59-5ada-a3ce-78c82259e9dd', '22222222-2222-2222-2222-222222222222', 'Ivy', 'Envoy')
- on conflict (id) do nothing;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
 
