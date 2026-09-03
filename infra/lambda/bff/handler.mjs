@@ -572,7 +572,7 @@ export async function handler(event) {
           [id],
         );
         if (!company.rowCount) return null;
-        const [parent, children, people] = await Promise.all([
+        const [parent, children, people, referredDeals] = await Promise.all([
           company.rows[0].parent_company_id
             ? client.query(
                 `select id, name, kind_id from companies where id = $1`,
@@ -592,12 +592,36 @@ export async function handler(event) {
              order by c.last_name`,
             [id],
           ),
+          // Deals this team referred: any deal whose referring_agent is
+          // affiliated with the company. Success criterion 3 asks for these
+          // alongside the nested agents.
+          client.query(
+            `select distinct d.id, d.name, s.label as stage_label,
+                    c.id as agent_id, c.first_name, c.last_name
+             from deal_parties dp
+             join deals d on d.id = dp.deal_id
+             left join pipeline_stages s on s.id = d.stage_id
+             join contact_affiliations a
+               on a.contact_id = dp.contact_id and a.company_id = $1
+             join contacts c on c.id = dp.contact_id
+             where dp.role = 'referring_agent'
+               and c.merged_into_id is null
+             order by d.name`,
+            [id],
+          ),
         ]);
         return {
           ...company.rows[0],
           parent: parent.rows[0] ?? null,
           children: children.rows,
           people: people.rows,
+          referred_deals: referredDeals.rows.map((row) => ({
+            id: row.id,
+            name: row.name,
+            stage_label: row.stage_label ?? null,
+            agent_id: row.agent_id,
+            agent_name: `${row.first_name} ${row.last_name}`,
+          })),
         };
       });
       if (!payload) return json(404, { error: "not_found" });
