@@ -4,14 +4,22 @@
 insert into deal_party_roles (id) values ('recruit') on conflict do nothing;
 
 insert into pipelines (id, tenant_id, name, sort_index) values
-    ('38ea7a94-3850-5d1a-b429-48292ebd550b', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'Lead - Active', 10),
     ('875e221a-038f-53ff-91e0-df369229630f', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'Closed / Archive', 50),
     ('e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'Mortgage opportunity', 60)
 on conflict (id) do nothing;
 
+delete from pipelines p
+ where p.id = '38ea7a94-3850-5d1a-b429-48292ebd550b'
+   and not exists (select 1 from deals d where d.pipeline_id = p.id)
+   and not exists (select 1 from pipeline_stages s where s.pipeline_id = p.id);
+
 insert into pipeline_stages (id, tenant_id, pipeline_id, code, label, sort_index, is_closed, is_won) values
     ('22716f25-cf6a-57e3-a9db-d46fb201e2bf', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '875e221a-038f-53ff-91e0-df369229630f', '12-inactive', '12 - Inactive', 12, true, false),
-    ('9045749d-aa04-55b9-ba94-3db26a617de4', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '01-open', '01 - Open', 1, false, false)
+    ('9045749d-aa04-55b9-ba94-3db26a617de4', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'e2e17c98-a907-54b6-afc5-06ba10a4f4d2', '01-open', '01 - Open', 1, false, false),
+    ('564c9feb-6530-5061-9c7e-ce16558c32ab', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'c1000001-0001-4000-8000-000000000004', '05-docs-received', '05 - Docs Received', 5, false, false),
+    ('07262d3b-556a-5405-a4ac-3594c314b9b3', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'c1000001-0001-4000-8000-000000000004', '07-conditional-approval', '07 - Conditional Approval', 7, false, false),
+    ('00fc91fa-1571-5afd-816f-92e6773a433a', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'c1000001-0001-4000-8000-000000000004', '08-clear-to-close', '08 - Clear to Close', 8, false, false),
+    ('21bfb862-155f-527c-b777-e0d938cbd3a7', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'c1000001-0001-4000-8000-000000000004', '09-funded', '09 - Funded', 9, true, true)
 on conflict (id) do nothing;
 
 insert into companies (id, tenant_id, owner_id, parent_company_id, kind_id, name) values
@@ -856,7 +864,7 @@ insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('97bdba64-9dbd-5ec8-bc19-a93ac005608b', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Willow', 'Woodley'),
     ('ff32f996-5294-53db-ab38-ed99b8abc70d', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Avery', 'Agent'),
     ('dfcc71a4-146e-5011-8ac2-287fde2277c3', '4b51bd26-ea4f-5777-b9d9-780dbb91853e', '11111111-1111-1111-1111-111111111111', 'Blair', 'Borrower')
- on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name;
+ on conflict (id) do update set first_name = excluded.first_name, last_name = excluded.last_name, merged_into_id = null;
 
 insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '97bdba64-9dbd-5ec8-bc19-a93ac005608b', 'borrower', true),
@@ -868,7 +876,7 @@ insert into contact_identifiers (tenant_id, contact_id, id_type, value) values
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', '97bdba64-9dbd-5ec8-bc19-a93ac005608b', 'email', 'willow.dup@example.test'),
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'ff32f996-5294-53db-ab38-ed99b8abc70d', 'email', 'avery.other@example.test'),
     ('4b51bd26-ea4f-5777-b9d9-780dbb91853e', 'dfcc71a4-146e-5011-8ac2-287fde2277c3', 'email', 'blair.old@example.test')
- on conflict do nothing;
+ on conflict (tenant_id, id_type, value) do update set contact_id = excluded.contact_id;
 
 insert into contacts (id, tenant_id, owner_id, first_name, last_name) values
     ('0425c4d1-5ee2-5879-bf22-b085af200cf6', '28dd4130-fe59-5ada-a3ce-78c82259e9dd', '22222222-2222-2222-2222-222222222222', 'Gia', 'Envoy'),

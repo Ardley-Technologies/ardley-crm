@@ -2,6 +2,7 @@ import { ShowBase, useShowContext } from "ra-core";
 import { Link } from "react-router";
 
 import { Card } from "@/components/ui/card";
+import { GraphSection } from "./GraphSection";
 
 interface GraphCompany {
   id: string;
@@ -14,6 +15,13 @@ interface GraphCompany {
     first_name: string;
     last_name: string;
     role: string | null;
+  }[];
+  referred_deals: {
+    id: string;
+    name: string;
+    stage_label: string | null;
+    agent_id: string;
+    agent_name: string;
   }[];
 }
 
@@ -29,6 +37,10 @@ function CompanyGraph() {
   const { record, isPending } = useShowContext<GraphCompany>();
   if (isPending || !record) return null;
 
+  const children = record.children ?? [];
+  const people = record.people ?? [];
+  const referred = record.referred_deals ?? [];
+
   return (
     <Card className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">{record.name}</h1>
@@ -36,8 +48,7 @@ function CompanyGraph() {
         <p className="text-muted-foreground">{record.kind_id}</p>
       ) : null}
 
-      <section>
-        <h2 className="font-medium mb-2">Parent</h2>
+      <GraphSection title="Parent" isEmpty={!record.parent}>
         {record.parent ? (
           <Link
             className="underline"
@@ -45,15 +56,12 @@ function CompanyGraph() {
           >
             {record.parent.name}
           </Link>
-        ) : (
-          <p className="text-sm text-muted-foreground">None</p>
-        )}
-      </section>
+        ) : null}
+      </GraphSection>
 
-      <section>
-        <h2 className="font-medium mb-2">Children</h2>
+      <GraphSection title="Children" isEmpty={children.length === 0}>
         <ul>
-          {(record.children ?? []).map((child) => (
+          {children.map((child) => (
             <li key={child.id}>
               <Link className="underline" to={`/companies/${child.id}/show`}>
                 {child.name}
@@ -61,12 +69,11 @@ function CompanyGraph() {
             </li>
           ))}
         </ul>
-      </section>
+      </GraphSection>
 
-      <section>
-        <h2 className="font-medium mb-2">People</h2>
+      <GraphSection title="People" isEmpty={people.length === 0}>
         <ul>
-          {(record.people ?? []).map((person) => (
+          {people.map((person) => (
             <li key={person.contact_id}>
               <Link
                 className="underline"
@@ -78,7 +85,26 @@ function CompanyGraph() {
             </li>
           ))}
         </ul>
-      </section>
+      </GraphSection>
+
+      <GraphSection title="Referred deals" isEmpty={referred.length === 0}>
+        <ul>
+          {referred.map((deal) => (
+            <li key={deal.id}>
+              <Link className="underline" to={`/deals/${deal.id}/show`}>
+                {deal.name}
+              </Link>
+              {deal.stage_label ? ` · ${deal.stage_label}` : ""} — referred by{" "}
+              <Link
+                className="underline"
+                to={`/contacts/${deal.agent_id}/show`}
+              >
+                {deal.agent_name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </GraphSection>
     </Card>
   );
 }

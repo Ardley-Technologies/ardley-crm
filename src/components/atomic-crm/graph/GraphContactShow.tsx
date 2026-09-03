@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { GraphSection } from "./GraphSection";
 
 import { GraphMergeButton } from "./GraphMergeButton";
 
@@ -106,8 +107,10 @@ function ContactGraph() {
         )}
       </section>
 
-      <section>
-        <h2 className="font-medium mb-2">Team / affiliations</h2>
+      <GraphSection
+        title="Team / affiliations"
+        isEmpty={(record.affiliations ?? []).length === 0}
+      >
         <ul>
           {(record.affiliations ?? []).map((aff) => (
             <li key={aff.id}>
@@ -124,7 +127,7 @@ function ContactGraph() {
             </li>
           ))}
         </ul>
-      </section>
+      </GraphSection>
 
       <section>
         <h2 className="font-medium mb-2">Loan triangle</h2>
@@ -163,8 +166,7 @@ function ContactGraph() {
         )}
       </section>
 
-      <section>
-        <h2 className="font-medium mb-2">Related</h2>
+      <GraphSection title="Related" isEmpty={(record.links ?? []).length === 0}>
         <ul>
           {(record.links ?? []).map((link) => {
             const otherId =
@@ -181,7 +183,7 @@ function ContactGraph() {
             );
           })}
         </ul>
-      </section>
+      </GraphSection>
 
       {(record.types ?? []).some(
         (type) =>
@@ -193,8 +195,7 @@ function ContactGraph() {
         </section>
       ) : null}
 
-      <section>
-        <h2 className="font-medium mb-2">Deals</h2>
+      <GraphSection title="Deals" isEmpty={(record.deals ?? []).length === 0}>
         <ul>
           {(record.deals ?? []).map((deal) => (
             <li key={`${deal.deal_id}-${deal.role}`}>
@@ -205,7 +206,7 @@ function ContactGraph() {
             </li>
           ))}
         </ul>
-      </section>
+      </GraphSection>
     </Card>
   );
 }

@@ -5,6 +5,10 @@ const bff = process.env.CRM_BFF_URL ?? "http://127.0.0.1:8787";
 // The seed plants a second "Willow Woodley" as an intentional duplicate, so her
 // name alone matches two links. This is the original, the one on the loan.
 const WILLOW_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+// The PLACE team the walkthrough's agents belong to, and the lender branch that
+// has neither members nor referrals.
+const GRIN_TEAM = "c1000002-0002-4000-8000-000000000002";
+const LENDER = "84ec1092-1a7e-57e5-9e88-dc45251ca77b";
 
 test.describe("W5 walkthrough harden", () => {
   test.beforeAll(async ({ request }) => {
@@ -118,6 +122,35 @@ test.describe("W5 walkthrough harden", () => {
     await expect(deals.getByText("Phil Officer hire (recruit)")).toBeVisible();
     await expect(
       deals.getByText("Willow purchase (loan_officer)"),
+    ).toBeVisible();
+  });
+
+  // Success criterion 3 asks for both halves. The referred deals were missing
+  // from the payload and the page entirely, so only the agents were provable.
+  test("team show lists nested agents and referred deals", async ({ page }) => {
+    await page.goto(`/#/companies/${GRIN_TEAM}/show`);
+    await expect(page.getByRole("heading", { name: "People" })).toBeVisible();
+    const people = page.locator("h2", { hasText: "People" }).locator("..");
+    await expect(
+      people.getByRole("link", { name: "Avery Agent" }),
+    ).toBeVisible();
+    expect(await people.locator("li").count()).toBeGreaterThan(5);
+
+    const referred = page
+      .locator("h2", { hasText: "Referred deals" })
+      .locator("..");
+    await expect(
+      referred.getByRole("link", { name: "Blair refinance" }),
+    ).toBeVisible();
+    await expect(referred.getByText("referred by").first()).toBeVisible();
+    expect(await referred.locator("li").count()).toBeGreaterThan(5);
+
+    // A company with no team members or referrals says so rather than showing a
+    // heading over nothing.
+    await page.goto(`/#/companies/${LENDER}/show`);
+    await expect(page.getByRole("heading", { name: "People" })).toBeVisible();
+    await expect(
+      page.locator("h2", { hasText: "People" }).locator("..").getByText("None"),
     ).toBeVisible();
   });
 

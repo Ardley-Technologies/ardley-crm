@@ -91,30 +91,55 @@ def main() -> None:
         "",
     ]
 
-    # Extra pipelines / stages
-    lead = uid("pipe-lead")
+    # Extra pipelines / stages. W1 already ships "Lead - Active", and every lead
+    # deal below uses that one, so this file used to add a second pipeline of the
+    # same name with no stages and no deals -- visible in any pipeline picker.
     closed = uid("pipe-closed")
     b2b = uid("pipe-b2b")
-    lead_stage = uid("stage-lead-02")
     closed_stage = uid("stage-closed-12")
     b2b_stage = uid("stage-b2b-01")
+    w1_lead = "c1000001-0001-4000-8000-000000000001"
+    w1_lead_stage = "c1000001-0001-4000-8000-000000000011"
     lines.append(
         "insert into pipelines (id, tenant_id, name, sort_index) values\n"
-        f"    ({sql_str(lead)}, {sql_str(str(WOODLEY))}, 'Lead - Active', 10),\n"
         f"    ({sql_str(closed)}, {sql_str(str(WOODLEY))}, 'Closed / Archive', 50),\n"
         f"    ({sql_str(b2b)}, {sql_str(str(WOODLEY))}, 'Mortgage opportunity', 60)\n"
         "on conflict (id) do nothing;\n"
     )
-    # Lead - Active already exists in W1 with a different id. Use W1 lead pipe if present.
-    w1_lead = "c1000001-0001-4000-8000-000000000001"
-    w1_lead_stage = "c1000001-0001-4000-8000-000000000011"
+    # Drop the duplicate already seeded into long-lived databases. Guarded on
+    # having no deals so it can never take a pipeline anything depends on.
+    lines.append(
+        "delete from pipelines p\n"
+        f" where p.id = {sql_str(uid('pipe-lead'))}\n"
+        "   and not exists (select 1 from deals d where d.pipeline_id = p.id)\n"
+        "   and not exists (select 1 from pipeline_stages s where s.pipeline_id = p.id);\n"
+    )
+    # W1 gives In Process only 04 and 06, so "move a loan through numbered stages"
+    # was a single hop with a hole at 05. Fill the ladder out to a funded terminal.
+    # Placeholder labels on the existing NN scheme -- confirm the real ones with the
+    # business before they mean anything.
+    inproc_stages = [
+        ("05-docs-received", "05 - Docs Received", 5, False, False),
+        ("07-conditional-approval", "07 - Conditional Approval", 7, False, False),
+        ("08-clear-to-close", "08 - Clear to Close", 8, False, False),
+        ("09-funded", "09 - Funded", 9, True, True),
+    ]
+    stage_rows = [
+        f"    ({sql_str(closed_stage)}, {sql_str(str(WOODLEY))}, {sql_str(closed)}, "
+        f"'12-inactive', '12 - Inactive', 12, true, false)",
+        f"    ({sql_str(b2b_stage)}, {sql_str(str(WOODLEY))}, {sql_str(b2b)}, "
+        f"'01-open', '01 - Open', 1, false, false)",
+        *[
+            f"    ({sql_str(uid(f'stage-inproc-{code}'))}, {sql_str(str(WOODLEY))}, "
+            f"{sql_str(IN_PROCESS)}, {sql_str(code)}, {sql_str(label)}, {idx}, "
+            f"{str(is_closed).lower()}, {str(is_won).lower()})"
+            for code, label, idx, is_closed, is_won in inproc_stages
+        ],
+    ]
     lines.append(
         "insert into pipeline_stages (id, tenant_id, pipeline_id, code, label, sort_index, is_closed, is_won) values\n"
-        f"    ({sql_str(closed_stage)}, {sql_str(str(WOODLEY))}, {sql_str(closed)}, "
-        f"'12-inactive', '12 - Inactive', 12, true, false),\n"
-        f"    ({sql_str(b2b_stage)}, {sql_str(str(WOODLEY))}, {sql_str(b2b)}, "
-        f"'01-open', '01 - Open', 1, false, false)\n"
-        "on conflict (id) do nothing;\n"
+        + ",\n".join(stage_rows)
+        + "\non conflict (id) do nothing;\n"
     )
 
     # Lender + 3 branches + 2 more teams
@@ -357,10 +382,16 @@ def main() -> None:
         dup_i.append(
             f"    ({sql_str(str(WOODLEY))}, {sql_str(cid)}, {sql_str(id_type)}, {sql_str(value)})"
         )
+    # These three are demo fixtures, so a re-seed has to put them back after
+    # someone merges one during a walkthrough: clear merged_into_id, and pull the
+    # distinguishing identifier back off the winner it was moved to. Contacts at
+    # large keep their merged_into_id, so a real merge elsewhere still sticks.
     lines.append(
         "insert into contacts (id, tenant_id, owner_id, first_name, last_name) values\n"
         + ",\n".join(dup_c)
-        + CONTACT_NAME_CONFLICT
+        + "\n on conflict (id) do update set"
+        " first_name = excluded.first_name, last_name = excluded.last_name,"
+        " merged_into_id = null;\n"
     )
     lines.append(
         "insert into contact_type_assignments (tenant_id, contact_id, type_id, is_primary) values\n"
@@ -370,7 +401,8 @@ def main() -> None:
     lines.append(
         "insert into contact_identifiers (tenant_id, contact_id, id_type, value) values\n"
         + ",\n".join(dup_i)
-        + "\n on conflict do nothing;\n"
+        + "\n on conflict (tenant_id, id_type, value) do update set"
+        " contact_id = excluded.contact_id;\n"
     )
 
     # Envoy extras (~3 more contacts)
