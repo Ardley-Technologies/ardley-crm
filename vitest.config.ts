@@ -29,6 +29,10 @@ export default defineConfig({
         test: {
           name: "app",
           globals: true,
+          // Without this the default glob also collects the Node-only suites under
+          // infra/ and server/, which fail on `node:crypto` in the browser. Every
+          // app test lives under src/; the other projects own their own trees.
+          include: ["src/**/*.test.?(c|m)[jt]s?(x)"],
           browser: {
             headless: true,
             provider: playwright(),
@@ -68,6 +72,13 @@ export default defineConfig({
               external: [/playwright/],
             },
           },
+        },
+      },
+      {
+        test: {
+          name: "bff",
+          environment: "node",
+          include: ["infra/lambda/**/*.test.mjs", "server/**/*.test.mjs"],
         },
       },
       {

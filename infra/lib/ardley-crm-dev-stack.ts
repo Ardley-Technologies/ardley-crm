@@ -128,7 +128,11 @@ export class ArdleyCrmDevStack extends cdk.Stack {
         COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
         SPA_ORIGIN: `https://${SPA_HOST}`,
       },
-      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/bff")),
+      // Tests live beside the code they cover, but they import vitest and have no
+      // business in the deployed bundle.
+      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/bff"), {
+        exclude: ["*.test.mjs"],
+      }),
     });
     db.secret?.grantRead(bff);
     db.connections.allowDefaultPortFrom(bff);

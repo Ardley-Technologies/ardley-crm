@@ -5,6 +5,11 @@
  */
 import http from "node:http";
 import pg from "pg";
+import {
+  ensureTenant,
+  normalizeCustomerId,
+  tenantUuidFor,
+} from "../infra/lambda/bff/tenant.mjs";
 
 const PORT = Number(process.env.CRM_BFF_PORT || 8787);
 const DATABASE_URL =
@@ -136,13 +141,25 @@ async function resolveSavedView(client, view) {
   return [];
 }
 
+// Mirrors the deployed extractor's tenancy: any numeric customer id resolves, and
+// tenants.id is derived rather than looked up. TENANTS only supplies the stub
+// identity fields for the two seeded tenants, so /me still reads sensibly locally.
 function principalFrom(req) {
   const raw =
     req.headers["x-ardley-customer-id"] ||
     req.headers["x-acorn-tenant-id"] ||
     "100004";
-  const customerId = String(raw).trim();
-  return TENANTS[customerId] ?? null;
+  const customerId = normalizeCustomerId(raw);
+  if (!customerId) return null;
+  const known = TENANTS[customerId];
+  return {
+    customerId,
+    tenantUuid: tenantUuidFor(customerId),
+    slug: known?.slug,
+    userId: known?.userId ?? null,
+    email: known?.email ?? null,
+    fullName: known?.fullName ?? `Customer ${customerId} user`,
+  };
 }
 
 async function withTenant(principal, fn) {
@@ -152,6 +169,7 @@ async function withTenant(principal, fn) {
     await client.query("select set_config('app.tenant_id', $1, true)", [
       principal.tenantUuid,
     ]);
+    await ensureTenant(client, principal);
     const result = await fn(client);
     await client.query("commit");
     return result;
