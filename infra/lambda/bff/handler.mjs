@@ -4,20 +4,14 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 import { createPublicKey, createVerify } from "node:crypto";
 import { Client } from "pg";
+import {
+  ensureTenant,
+  KNOWN_SLUGS,
+  normalizeCustomerId,
+  tenantUuidFor,
+} from "./tenant.mjs";
 
 const secrets = new SecretsManagerClient({});
-const TENANTS = {
-  100004: {
-    customerId: "100004",
-    slug: "woodley",
-    tenantUuid: "4b51bd26-ea4f-5777-b9d9-780dbb91853e",
-  },
-  100081: {
-    customerId: "100081",
-    slug: "envoy",
-    tenantUuid: "28dd4130-fe59-5ada-a3ce-78c82259e9dd",
-  },
-};
 
 const jwksCache = { keys: null, fetchedAt: 0 };
 let dbSecret;
@@ -99,13 +93,18 @@ async function verifyJwt(token) {
   return payload;
 }
 
+// Tier 1 of the principal extractor (poc-plan.md section 8): claims. Platform
+// pools inject custom:customerId at token issuance, so an SSO user normally
+// resolves here. Any Ardley customer id is accepted -- gating on a hardcoded map
+// of two tenants was the POC shortcut, and it 403'd every other real customer.
+// Tiers 2 and 3 (role store, then the ardley-customer-users-{env} membership
+// table) are W6.2/W6.3 and slot in below this.
 function customerIdFromClaims(claims) {
   const fromClaim =
     claims["custom:customerId"] ||
     claims["custom:tenantId"] ||
     claims.customerId;
-  if (fromClaim && TENANTS[String(fromClaim)]) return String(fromClaim);
-  return null;
+  return normalizeCustomerId(fromClaim);
 }
 
 async function getDbSecret() {
@@ -133,6 +132,7 @@ async function withTenant(principal, fn) {
     await client.query("select set_config('app.tenant_id', $1, true)", [
       principal.tenantUuid,
     ]);
+    await ensureTenant(client, principal);
     const result = await fn(client);
     await client.query("commit");
     return result;
@@ -292,7 +292,9 @@ export async function handler(event) {
     const customerId = customerIdFromClaims(claims);
     if (!customerId) return json(403, { error: "unknown_principal" });
     const principal = {
-      ...TENANTS[customerId],
+      customerId,
+      tenantUuid: tenantUuidFor(customerId),
+      slug: KNOWN_SLUGS[customerId],
       email: claims.email || null,
       fullName:
         [claims.given_name, claims.family_name].filter(Boolean).join(" ") ||
